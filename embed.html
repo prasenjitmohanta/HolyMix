@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+    <title> </title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style type="text/css">
+        html {
+            width: 100%;
+            height: 100%;
+            background: #111;
+        }
+
+        body {
+            margin: 0px;
+            background-color: #000;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        body>.plyr {
+            width: 100%;
+            max-height: 100%;
+            aspect-ratio: 16/9;
+        }
+
+        video {
+            aspect-ratio: 16/9;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @keyframes plyr__time-skip {
+            40% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .plyr__time-skip {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            width: 40%;
+            opacity: 0;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        .plyr__time-skip.is-left {
+            left: 0;
+            background: linear-gradient(90deg,
+                    rgba(0, 0, 0, 0.5) 0%,
+                    transparent 100%);
+        }
+
+        .plyr__time-skip.is-right {
+            right: 0;
+            background: linear-gradient(90deg,
+                    transparent 0%,
+                    rgba(0, 0, 0, 0.5) 100%);
+        }
+
+        .plyr__time-skip.is-animated {
+            animation: plyr__time-skip ease 1s forwards;
+        }
+
+        :root {
+            --plyr-color-main: #b0e3af;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <script src="https://cdn.jsdelivr.net/npm/plyr@3/dist/plyr.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js"></script>
+    <script src="https://unpkg.com/plyr@3"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BHQX4066ZV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag("js", new Date());
+        gtag("config", "G-BHQX4066ZV");
+    </script>
+</head>
+
+<body>
+    <video controls crossorigin playsinline></video>
+
+    <script>
+        params = new URLSearchParams(location.search);
+        const source = params.get("url");
+        const id = params.get("episode_id");
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const video = document.querySelector("video");
+
+            // Set poster image
+            video.setAttribute(
+                "data-poster",
+                `https://thumb.anime-dex.workers.dev/get/${id}`
+            );
+
+            const defaultOptions = {
+                keyboard: {
+                    focused: true,
+                    global: true,
+                },
+                controls: [
+                    "play-large",
+                    "play",
+                    "progress",
+                    "current-time",
+                    "duration",
+                    "settings",
+                    "fullscreen",
+                ],
+                settings: ["quality", "speed"],
+                tooltips: {
+                    controls: true,
+                    seek: true,
+                },
+                displayDuration: true,
+                fullscreen: {
+                    enabled: true,
+                    fallback: true,
+                    iosNative: true,
+                },
+                mediaMetadata: {
+                    title: id,
+                    artist: "AnimeDex",
+                    album: "AnimeDex",
+                }
+            };
+
+
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(source);
+                hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+                    const availableQualities = hls.levels.map((l) => l.height);
+
+                    defaultOptions.quality = {
+                        default: availableQualities[0],
+                        options: availableQualities,
+                        forced: true,
+                        onChange: (e) => updateQuality(e),
+                    };
+                    const player = new Plyr(video, defaultOptions);
+                    configPlayer(player);
+                });
+                hls.attachMedia(video);
+                window.hls = hls;
+            } else {
+                const player = new Plyr(video, defaultOptions);
+                configPlayer(player);
+            }
+
+            function updateQuality(newQuality) {
+                window.hls.levels.forEach((level, levelIndex) => {
+                    if (level.height === newQuality) {
+                        window.hls.currentLevel = levelIndex;
+                    }
+                });
+            }
+            function configPlayer(player) {
+                player.on("ready", () => {
+                    const root = video.closest(".plyr--video");
+
+                    player.eventListeners.forEach(function (eventListener) {
+                        if (eventListener.type === "dblclick") {
+                            eventListener.element.removeEventListener(
+                                eventListener.type,
+                                eventListener.callback,
+                                eventListener.options
+                            );
+                        }
+                    });
+                    root.addEventListener("dblclick", function (event) {
+                        event.preventDefault();
+                    });
+                    const poster = root.querySelector(".plyr__poster");
+                    const timeSkip = document.createElement("div");
+                    const resetState = () => {
+                        poster.clickedTimes = 0;
+                        poster.lastSideClicked = undefined;
+                    };
+
+                    timeSkip.className = "plyr__time-skip";
+                    poster.parentNode.insertBefore(timeSkip, poster);
+                    poster.clickedTimes = 0;
+                    poster.addEventListener("click", function (event) {
+                        poster.clickedTimes++;
+
+                        if (poster.resetTimeout) {
+                            clearTimeout(poster.resetTimeout);
+                        }
+
+                        poster.resetTimeout = setTimeout(resetState, 1000);
+
+                        // handle only double click
+                        if (poster.clickedTimes < 2) {
+                            return;
+                        }
+
+                        // find click position
+                        const percentage =
+                            ((event.clientX - event.target.getBoundingClientRect().left) *
+                                100) /
+                            event.target.offsetWidth;
+
+                        if (percentage < 40) {
+                            if (
+                                player.currentTime === 0 ||
+                                (typeof poster.lastSideClicked !== "undefined" &&
+                                    poster.lastSideClicked !== "L")
+                            ) {
+                                clearTimeout(poster.resetTimeout);
+                                resetState();
+
+                                return;
+                            }
+
+                            timeSkip.innerText =
+                                "❮❮\n" + (poster.clickedTimes - 1) * 10 + "s";
+                            timeSkip.classList.add("is-left");
+                            timeSkip.classList.remove("is-right");
+                            timeSkip.classList.remove("is-animated");
+                            setTimeout(() => timeSkip.classList.add("is-animated"), 1);
+                            poster.lastSideClicked = "L";
+                            player.rewind();
+                        } else if (percentage > 60) {
+                            if (
+                                player.currentTime === player.duration ||
+                                (typeof poster.lastSideClicked !== "undefined" &&
+                                    poster.lastSideClicked !== "R")
+                            ) {
+                                clearTimeout(poster.resetTimeout);
+                                resetState();
+
+                                return;
+                            }
+
+                            timeSkip.innerText =
+                                "❯❯\n" + (poster.clickedTimes - 1) * 10 + "s";
+                            timeSkip.classList.add("is-right");
+                            timeSkip.classList.remove("is-left");
+                            timeSkip.classList.remove("is-animated");
+                            setTimeout(() => timeSkip.classList.add("is-animated"), 1);
+                            poster.lastSideClicked = "R";
+                            player.forward();
+                        } else {
+                            poster.lastSideClicked = "C";
+                            poster.clickedTimes = 0;
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+    <!-- Google tag (gtag.js) -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0ZK749BSJH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0ZK749BSJH');
+</script>
+</body>
+
+</html>

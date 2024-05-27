@@ -1,0 +1,20 @@
+User-agent: SemrushBot
+User-agent: SiteAuditBot
+User-agent: SemrushBot-BA
+User-agent: SemrushBot-SI
+User-agent: SemrushBot-SWA
+User-agent: SemrushBot-CT
+User-agent: SplitSignalBot
+User-agent: SemrushBot-COUB
+Disallow: /
+
+User-agent: *
+Allow: /
+Allow: /anime.html
+Allow: /anime
+Allow: /episode.html
+Allow: /episode
+Allow: /search.html
+Allow: /search
+Disallow: /embed.html
+Disallow: /embed
