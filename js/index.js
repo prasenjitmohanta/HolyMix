@@ -1,18 +1,21 @@
 // Api urls
-const ProxyApi = "https://proxy.techzbots1.workers.dev/?u=";
+
+const ProxyApi = "https://proxy.techzbots1.workers.dev/?u="
 const IndexApi = "/home";
 const recentapi = "/recent/";
 
 // Api Server Manager
+
 const AvailableServers = [
-    "https://api.furygangster24.workers.dev",
+    "https://api.mahantad024.workers.dev",
 ];
 
 function getApiServer() {
     return AvailableServers[Math.floor(Math.random() * AvailableServers.length)]
 }
 
-// Usefull functions
+// Useful functions
+
 async function getJson(path, errCount = 0) {
     const ApiServer = getApiServer();
     let url = ApiServer + path;
@@ -78,8 +81,7 @@ async function getTrendingAnimes(data) {
             poster = anime["coverImage"]["extraLarge"];
         }
 
-        SLIDER_HTML += `<div class="mySlides fade"> <div class="data-slider"> <p class="spotlight">#${pos + 1
-            } Spotlight</p><h1>${title}</h1> <div class="extra1"> <span class="year"><i class="fa fa-play-circle"></i>${type}</span> <span class="year year2"><i class="fa fa-calendar"></i>${status}</span> <span class="cbox cbox1">${genres}</span> <span class="cbox cbox2">HD</span> </div><p class="small-synop">${description}</p><div id="watchh"> <a href="${url}" class="watch-btn"> <i class="fa fa-play-circle"></i> Watch Now </a> <a href="${url}" class="watch-btn watch-btn2"> <i class="fa fa-info-circle"></i> Details<i class="fa fa-angle-right"></i> </a> </div></div><div class="shado"> <a href="${url}"></a> </div><img src="${poster}"> </div>`;
+        SLIDER_HTML += `<div class="mySlides fade"> <div class="data-slider"> <p class="spotlight">#${pos + 1} Spotlight</p><h1>${title}</h1> <div class="extra1"> <span class="year"><i class="fa fa-play-circle"></i>${type}</span> <span class="year year2"><i class="fa fa-calendar"></i>${status}</span> <span class="cbox cbox1">${genres}</span> <span class="cbox cbox2">HD</span> </div><p class="small-synop">${description}</p><div id="watchh"> <a href="${url}" class="watch-btn"> <i class="fa fa-play-circle"></i> Watch Now </a> <a href="${url}" class="watch-btn watch-btn2"> <i class="fa fa-info-circle"></i> Details<i class="fa fa-angle-right"></i> </a> </div></div><div class="shado"> <a href="${url}"></a> </div><img src="${poster}"> </div>`;
     }
 
     document.querySelector(".slideshow-container").innerHTML =
@@ -87,83 +89,59 @@ async function getTrendingAnimes(data) {
         '<a class="prev" onclick="plusSlides(-1)">&#10094;</a><a class="next" onclick="plusSlides(1)">&#10095;</a>';
 }
 
-// Modify getPopularAnimes to use English titles and updated API
-async function getPopularAnimes() {
-    try {
-        const response = await fetch('https://holyapi.vercel.app/anime/gogoanime/top-airing');
-        const data = await response.json();
-        const results = data.results;
-        let POPULAR_HTML = "";
-
-        for (let pos = 0; pos < results.length; pos++) {
-            let anime = results[pos];
-            let title = anime.title;
-            let id = anime.id;
-            let url = anime.url;
-            let image = anime.image;
-            let subOrDubIndicator = ""; // Default to empty
-            let audioLanguage = ""; // Default to empty
-
-            // Check if title indicates dub (you can modify this logic as needed)
-            if (title && (title.toLowerCase().includes("dub") || title.toLowerCase().includes("english"))) {
-                subOrDubIndicator = "DUB"; // Set indicator to "DUB"
-                audioLanguage = "English Dub"; // Set audio language for display
-            } else {
-                subOrDubIndicator = "SUB"; // Set indicator to "SUB"
-                audioLanguage = "Japanese Audio"; // Set audio language for display
-            }
-
-            POPULAR_HTML += `<a href="${url}"><div class="poster la-anime"> <div id="shadow1" class="shadow"><div class="dubb"># ${pos + 1
-                }</div> <div class="dubb dubb2">${subOrDubIndicator}</div> </div><div id="shadow2" class="shadow"> <img class="lzy_img" src="./static/loading1.gif" data-src="${image}"> </div><div class="la-details"> <h3>${title}</h3><p>${audioLanguage}</p></div></div></a>`;
-        }
-
-        document.querySelector(".popularg").innerHTML = POPULAR_HTML;
-        RefreshLazyLoader();
-        console.log("Popular animes loaded");
-    } catch (error) {
-        console.error("Failed to fetch popular animes:", error);
-    }
-}
-
-// Modify getRecentAnimes to use updated API
-async function getRecentAnimes(page = 1, limit = 18) {
-    if (recentAnimesLoaded) return; // Prevent fetching if already loaded
-    try {
-        const response = await fetch(`https://holyapi.vercel.app/anime/gogoanime/top-airing?page=${page}`);
-        const data = await response.json();
-        const results = data.results;
-        const slicedData = results.slice(0, limit); // Limiting the data to the first 'limit' number of results
-        let RECENT_HTML = "";
-
-        for (let pos = 0; pos < slicedData.length; pos++) {
-            let anime = slicedData[pos];
-            let title = anime.title;
-            let id = anime.id.split("-episode-")[0];
-            let url = anime.url;
-            let image = anime.image;
-            let ep = anime.episodeNumber;
-            let subOrDub;
-
-            if (title.toLowerCase().includes("dub")) {
-                subOrDub = "DUB";
-            } else {
-                subOrDub = "SUB";
-            }
-
-            RECENT_HTML += `<a href="${url}"><div class="poster la-anime"> <div id="shadow1" class="shadow"><div class="dubb">${subOrDub}</div><div class="dubb dubb2">EP ${ep}</div> </div><div id="shadow2" class="shadow"> <img class="lzy_img" src="./static/loading1.gif" data-src="${image}"> </div><div class="la-details"> <h3>${title}</h3></div></div></a>`;
-        }
-
-        document.querySelector(".recento").innerHTML += RECENT_HTML;
-        recentAnimesLoaded = true;
-        RefreshLazyLoader();
-        console.log("Recent animes loaded");
-    } catch (error) {
-        console.error("Failed to fetch recent animes:", error);
-    }
-}
-
 // Adding popular animes (popular animes from gogoanime)
-let recentAnimesLoaded = false;
+// Modify getPopularAnimes to use English titles
+async function getPopularAnimes(data) {
+    let POPULAR_HTML = "";
+
+    for (let pos = 0; pos < data.length; pos++) {
+        let anime = data[pos];
+        let title = anime["title"];
+        let id = anime["id"];
+        let url = "./anime.html?anime_id=" + id;
+        let image = anime["image"];
+        let subOrDubIndicator = ""; // Default to empty
+        let audioLanguage = ""; // Default to empty
+
+        // Check if title indicates dub (you can modify this logic as needed)
+        if (title && (title.toLowerCase().includes("dub") || title.toLowerCase().includes("english"))) {
+            subOrDubIndicator = "DUB"; // Set indicator to "DUB"
+            audioLanguage = "English Dub"; // Set audio language for display
+        } else {
+            subOrDubIndicator = "SUB"; // Set indicator to "SUB"
+            audioLanguage = "Japanese Audio"; // Set audio language for display
+        }
+
+        POPULAR_HTML += `<a href="${url}"><div class="poster la-anime"> <div id="shadow1" class="shadow"><div class="dubb"># ${pos + 1}</div> <div class="dubb dubb2">${subOrDubIndicator}</div> </div><div id="shadow2" class="shadow"> <img class="lzy_img" src="./static/loading1.gif" data-src="${image}"> </div><div class="la-details"> <h3>${title}</h3><p>${audioLanguage}</p></div></div></a>`;
+    }
+
+    document.querySelector(".popularg").innerHTML = POPULAR_HTML;
+}
+
+// Adding recent animes (popular animes from gogoanime)
+async function getRecentAnimes() {
+    const data = (await getJson(recentapi + 1))["results"].slice(0, 18); // Limit to 18 results
+    let RECENT_HTML = "";
+
+    for (let pos = 0; pos < data.length; pos++) {
+        let anime = data[pos];
+        let title = anime["title"];
+        let id = anime["id"].split("-episode-")[0];
+        let url = "./anime.html?anime_id=" + id;
+        let image = anime["image"];
+        let ep = anime["episode"].split(" ")[1];
+        let subOrDub;
+        if (title.toLowerCase().includes("dub")) {
+            subOrDub = "DUB";
+        } else {
+            subOrDub = "SUB";
+        }
+
+        RECENT_HTML += `<a href="${url}"><div class="poster la-anime"> <div id="shadow1" class="shadow"><div class="dubb">${subOrDub}</div><div class="dubb dubb2">EP ${ep}</div> </div><div id="shadow2" class="shadow"> <img class="lzy_img" src="./static/loading1.gif" data-src="${image}"> </div><div class="la-details"> <h3>${title}</h3></div></div></a>`;
+    }
+
+    document.querySelector(".recento").innerHTML = RECENT_HTML;
+}
 
 // Slider functions
 let slideIndex = 0;
@@ -230,43 +208,13 @@ function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// To load more animes when scrolled to bottom
-let page = 2;
-let isLoading = false;
-
-async function loadAnimes() {
-    try {
-        if (isLoading == false) {
-            isLoading = true;
-            await getRecentAnimes(page)
-            RefreshLazyLoader();
-            console.log("Recent animes loaded");
-            page += 1;
-            isLoading = false;
-        }
-    } catch (error) {
-        isLoading = false;
-        console.error(`Failed To Load Recent Animes Page : ${page}`);
-        page += 1;
-    }
-}
-
-// Add a scroll event listener
-window.addEventListener('scroll', function () {
-    // Calculate how far the user has scrolled
-    const scrollPosition = window.scrollY;
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-
-    if ((scrollPosition + (3 * windowHeight)) >= documentHeight) {
-        loadAnimes();
-    }
-});
-
 // Running functions
+
 getJson(IndexApi).then((data) => {
     data = data["results"];
     const anilistTrending = shuffle(data["anilistTrending"]);
+    const gogoanimePopular = shuffle(data["gogoPopular"]);
+
     getTrendingAnimes(anilistTrending).then((data) => {
         RefreshLazyLoader();
         showSlides(slideIndex);
@@ -274,11 +222,13 @@ getJson(IndexApi).then((data) => {
         console.log("Sliders loaded");
     });
 
-    getPopularAnimes().then((data) => {
+    getPopularAnimes(gogoanimePopular).then((data) => {
+        RefreshLazyLoader();
         console.log("Popular animes loaded");
     });
 
-    getRecentAnimes(1).then((data) => {
+    getRecentAnimes().then((data) => {
+        RefreshLazyLoader();
         console.log("Recent animes loaded");
     });
 });
