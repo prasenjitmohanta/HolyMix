@@ -7,7 +7,7 @@ const recentapi = "/recent/";
 // Api Server Manager
 
 const AvailableServers = [
-    "https://api.mahantad024.workers.dev",
+    "https://api.furygangster24.workers.dev/",
 ];
 
 function getApiServer() {
