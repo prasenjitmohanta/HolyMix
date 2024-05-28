@@ -8,7 +8,7 @@ const dlapi = "/download/";
 // Api Server Manager
 
 const AvailableServers = [
-    "https://api.mahantad024.workers.dev",
+    "https://api.furygangster24.workers.dev/",
 ];
 function getApiServer() {
     return AvailableServers[Math.floor(Math.random() * AvailableServers.length)];
