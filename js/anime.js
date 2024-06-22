@@ -7,7 +7,7 @@ const recommendationsapi = "/recommendations/";
 // Api Server Manager
 
 const AvailableServers = [
-    "https://api.furygangster24.workers.dev/",
+    "https://api.holymix.workers.dev/",
 ];
 function getApiServer() {
     return AvailableServers[Math.floor(Math.random() * AvailableServers.length)];
